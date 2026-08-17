@@ -18,7 +18,7 @@
 			me->handler = t, TRANSFER
 
 struct luna_evt {
-    uint16_t sig;
+	uint32_t sig;
 };
 
 struct luna_fsm;

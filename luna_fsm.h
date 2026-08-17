@@ -17,13 +17,13 @@
 #define TRAN(t) \
 			me->handler = t, TRANSFER
 
-struct luna_evt {
+struct luna_fsm_evt {
 	uint32_t sig;
 };
 
 struct luna_fsm;
 
-typedef uint32_t (*luna_fsm_handler_t)(struct luna_fsm *fsm, const struct luna_evt *evt);
+typedef uint32_t (*luna_fsm_handler_t)(struct luna_fsm *fsm, const struct luna_fsm_evt *evt);
 
 struct luna_fsm {
 	luna_fsm_handler_t handler;
@@ -40,6 +40,6 @@ enum {
 };
 
 void luna_fsm_init(struct luna_fsm *me);
-void luna_fsm_dispatch(struct luna_fsm *me, const struct luna_evt *evt);
+void luna_fsm_dispatch(struct luna_fsm *me, const struct luna_fsm_evt *evt);
 
 #endif

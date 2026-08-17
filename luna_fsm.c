@@ -1,7 +1,7 @@
 /* luna_fsm.c */
 #include "luna_fsm.h"
 
-const struct luna_evt luna_internal_sig[] = {
+static const struct luna_fsm_evt luna_internal_sig[] = {
 	{.sig = SIG_EMPTY},
 	{.sig = SIG_ENTER},
 	{.sig = SIG_EXIT},
@@ -18,7 +18,7 @@ void luna_fsm_init(struct luna_fsm *me)
 	(void)(*me->handler)(me, &luna_internal_sig[SIG_ENTER]);
 }
 
-void luna_fsm_dispatch(struct luna_fsm *me, const struct luna_evt *evt)
+void luna_fsm_dispatch(struct luna_fsm *me, const struct luna_fsm_evt *evt)
 {
 	LUNA_FSM_ASSERT(me);
 	LUNA_FSM_ASSERT(evt);

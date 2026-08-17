@@ -2,7 +2,11 @@
 #ifndef LUNA_FSM_H
 #define LUNA_FSM_H
 
-#include "luna_ev.h"
+#include <stdint.h>
+
+#ifndef LUNA_FSM_ASSERT
+#define LUNA_FSM_ASSERT(expr) ((void)0)
+#endif
 
 #define HANDLED		(uint32_t)(0)
 #define IGNORED		(uint32_t)(1)
@@ -13,12 +17,16 @@
 #define TRAN(t) \
 			me->handler = t, TRANSFER
 
-struct core_fsm;
+struct luna_evt {
+    uint16_t sig;
+};
 
-typedef int (*Handler)(struct core_fsm *fsm, struct core_ev const*e);
+struct luna_fsm;
 
-struct core_fsm {
-	Handler handler;
+typedef uint32_t (*luna_fsm_handler_t)(struct luna_fsm *fsm, const struct luna_evt *evt);
+
+struct luna_fsm {
+	luna_fsm_handler_t handler;
 };
 
 enum {
@@ -31,44 +39,7 @@ enum {
 	CUSTOM_SIG = SIG_RESERVE_SIG_NUM,
 };
 
-void luna_fsm_init(struct core_fsm *me);
-void luna_fsm_dispatch(struct core_fsm *me, struct core_ev *e);
+void luna_fsm_init(struct luna_fsm *me);
+void luna_fsm_dispatch(struct luna_fsm *me, const struct luna_evt *evt);
 
 #endif
-
-#ifdef LUNA_FSM_IMPLEMENTATION
-
-const struct core_ev luna_interal_sig[] = {
-	{.sig = SIG_EMPTY},
-	{.sig = SIG_ENTER},
-	{.sig = SIG_EXIT},
-	{.sig = SIG_INIT},
-	{.sig = SIG_INTERRUPT},
-};
-
-void luna_fsm_init(struct core_fsm *me)
-{
-	LUNA_ASSERT(me);
-	LUNA_ASSERT(me->handler);
-
-	(void)(*me->handler)(me, &luna_interal_sig[SIG_INIT]);
-	(void)(*me->handler)(me, &luna_interal_sig[SIG_ENTER]);
-}
-
-void luna_fsm_dispatch(struct core_fsm *me, struct core_ev *e)
-{
-	LUNA_ASSERT(me);
-	LUNA_ASSERT(e);
-
-	Handler handler = me->handler;
-	LUNA_ASSERT(handler != NULL);
-
-	uint32_t result = handler(me, e);
-	if (TRANSFER == result) {
-		(void)handler(me, &luna_interal_sig[SIG_EXIT]);
-		(void)(*me->handler)(me, &luna_interal_sig[SIG_ENTER]);
-	}
-}
-
-#endif
-
